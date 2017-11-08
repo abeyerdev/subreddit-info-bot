@@ -1,0 +1,21 @@
+{
+  "name": "subreddit-info-bot",
+  "version": "1.0.0",
+  "description": "Reddit bot to provide details when a user comment includes a link to another subreddit.",
+  "main": "index.js",  
+  "author": "Adam Beyer",
+  "license": "ISC",
+  "scripts": {
+    "start": "nodemon index.js --exec babel-node --presets es2015,stage-2",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "snoowrap": "^1.14.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "nodemon": "^1.12.1"
+  }
+}
