@@ -2,7 +2,9 @@
 
 # dependencies
 /node_modules
-config.js
+
+#secrets
+/config/credentials.js
 
 # testing
 /coverage
