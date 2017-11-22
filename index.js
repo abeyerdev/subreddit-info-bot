@@ -17,8 +17,9 @@ let repliedComments = []
 async function main() {
     try {
         while(true) {
-            for(let i = 0; i< subreddits.length; i++) {           
-                await findAndReplyToEligibleComments(subreddits[i]).catch((e) => console.log(e))            
+            for(var subreddit of subreddits) {           
+                await findAndReplyToEligibleComments(subreddit)
+                    .catch((e) => console.log(e))     
             }
             await sleep(5000)
         }
@@ -28,10 +29,9 @@ async function main() {
 }
 
 // A valid comment would be in the form 'r/iamverysmart or /r/iamverysmart' 
-function isValidComment(comment) {
-    
+function isValidComment(comment) {    
     if(repliedComments.includes(comment.id)) {
-        console.log('ain\'t valid man, dupes!')
+        console.log(`Comment ${ comment.id } ain\'t valid man, dupes!`)
         return false
     }
     
@@ -57,38 +57,51 @@ async function findAndReplyToEligibleComments(subredditName) {
     r.getSubreddit(subredditName)
         .getNewComments()
         .filter(comment => isValidComment(comment))
-        .map(comment => {
-            console.log(`Found comment ${ comment.id }`, comment)
+        .map(validComment => {
+            const subredditPosted = validComment.body.split(' ')[0]
+            const subredditName = validComment.body
+                .split(' ')[0]
+                .replace(/\/?r\//g, '')
             return {
-                id: comment.id,
-                subredditPosted: comment.body.split(' ')[0]
+                id: validComment.id,
+                subredditName,
+                subredditPosted                
             }
         })
         //.then(console.log)
-        .forEach(comment => { 
-            createBotReply(comment.id, comment.subredditPosted)
+        .forEach(comment => {
+            createBotReply(comment)
                 .then(repliedComments.push(comment.id))
-                .catch((e) => console.log(e)) 
+                .catch((e) => console.log(e))
         })
+        .then(() => console.log('Current reply array:\n', JSON.stringify(repliedComments)))
 }
 
 // Create a reply to an eligible comment with information
 // regarding whether or not the poted subreddit exists.
-async function createBotReply(commentId, subredditPosted) {
-    let replyText = ''
+async function createBotReply(comment) {    
+    const { id, subredditName, subredditPosted } = comment
+    let replyText = `${ subredditPosted } isn't real.` 
 
-    if(subredditExists(subredditPosted)) { 
-        replyText = 'This subreddit exists' 
-    } else { 
-        replyText = 'This subreddit doesn\'t exist' 
+    if(await subredditExists(subredditName)) { 
+        replyText = `${ subredditPosted } is actually real.` 
     }
-    
+
     console.log(replyText)
-    return r.getComment(commentId).reply(replyText)
+    return r.getComment(id).reply(replyText)
 }
 
 async function subredditExists(subredditName) {
-    return r.getSubreddit(subredditName) != null
+    try {
+        const created = await r.getSubreddit(subredditName).created
+        return true
+    } catch(e) {
+        return false
+    }
 }
 
 main()
+
+// (function test() {
+//     subredditExists('kappa').then(console.log)
+// })()
