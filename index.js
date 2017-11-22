@@ -35,8 +35,7 @@ function isValidComment(comment) {
         return false
     }
     
-    // TODO: Get this working to not create dupes...
-    // comment can't already have been replied to by this bot
+    // TODO: Make sure the bot can't reply to itself.
     if(comment.expandReplies().replies.findIndex((reply) => reply.author.name === BOT_NAME) > -1) {
         console.log(`Already replied to comment ${ comment.id }`)
         return false
@@ -91,6 +90,8 @@ async function createBotReply(comment) {
     return r.getComment(id).reply(replyText)
 }
 
+// TODO: This could be getSubredditInfo and return an object
+// with an exists attribute in both cases.
 async function subredditExists(subredditName) {
     try {
         const created = await r.getSubreddit(subredditName).created
