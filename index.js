@@ -34,12 +34,16 @@ function isValidComment(comment) {
         console.log(`Comment ${ comment.id } ain\'t valid man, dupes!`)
         return false
     }
-    
-    // TODO: Make sure the bot can't reply to itself.
-    if(comment.expandReplies().replies.findIndex((reply) => reply.author.name === BOT_NAME) > -1) {
-        console.log(`Already replied to comment ${ comment.id }`)
+
+    // Make sure the bot can't reply to itself.
+    if(comment.author.name === BOT_NAME) {
+        console.log(`Comment ${ comment.id } is authored by this bot, can't reply to it!`)
         return false
     }
+
+    // TODO: Make sure the bot can't reply to comments it has already replied to,
+    // even if it was replied to in previous sessions.
+    // Have to use a db here or could we get away with in-memory storage?
 
     const validHtml = comment.body_html.includes('<a href="/r/')
     const eligibleBody = comment.body.split(' ')[0];
